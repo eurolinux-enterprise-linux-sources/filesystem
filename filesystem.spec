@@ -1,7 +1,7 @@
 Summary: The basic directory layout for a Linux system
 Name: filesystem
 Version: 2.4.30
-Release: 2.1%{?dist}
+Release: 3%{?dist}
 License: Public Domain
 URL: https://fedorahosted.org/filesystem
 Group: System Environment/Base
@@ -190,6 +190,9 @@ rm -rf %{buildroot}
 /var/yp
 
 %changelog
+* Tue Jun 28 2011 Ondrej Vasik <ovasik@redhat.com> 2.4-31-3
+- add ownership for several folders below /usr/share/locale(#620063)
+
 * Mon Nov 30 2009 Dennis Gregorovic <dgregor@redhat.com> - 2.4.30-2.1
 - Rebuilt for RHEL 6
 
