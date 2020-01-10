@@ -1,7 +1,7 @@
 Summary: The basic directory layout for a Linux system
 Name: filesystem
 Version: 3.2
-Release: 13%{?dist}
+Release: 18%{?dist}
 License: Public Domain
 URL: https://fedorahosted.org/filesystem
 Group: System Environment/Base
@@ -34,7 +34,7 @@ cd %{buildroot}
 mkdir -p boot dev \
         etc/{X11/{applnk,fontpath.d},xdg/autostart,opt,pm/{config.d,power.d,sleep.d},xinetd.d,skel,sysconfig,pki,bash_completion.d} \
         home media mnt opt proc root run srv sys tmp \
-        usr/{bin,etc,games,include,%{_lib}/{games,sse2,tls,X11,pm-utils/{module.d,power.d,sleep.d}},lib/{debug,games,locale,modules,sse2},libexec,local/{bin,etc,games,lib,%{_lib},sbin,src,share/{applications,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x},info},libexec,include,},sbin,share/{aclocal,applications,augeas/lenses,backgrounds,desktop-directories,dict,doc,empty,games,ghostscript/conf.d,gnome,icons,idl,info,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x,0p,1p,3p},mime-info,misc,omf,pixmaps,sounds,themes,xsessions,X11},src,src/kernels,src/debug} \
+        usr/{bin,etc,games,include,%{_lib}/{games,sse2,tls,X11,pm-utils/{module.d,power.d,sleep.d}},lib/{debug/usr,games,locale,modules,sse2},libexec,local/{bin,etc,games,lib,%{_lib},sbin,src,share/{applications,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x},info},libexec,include,},sbin,share/{aclocal,applications,augeas/lenses,backgrounds,desktop-directories,dict,doc,empty,games,ghostscript/conf.d,gnome,icons,idl,info,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x,0p,1p,3p},mime-info,misc,omf,pixmaps,sounds,themes,xsessions,X11},src,src/kernels,src/debug} \
         var/{adm,empty,gopher,lib/{games,misc,rpm-state},local,log,nis,preserve,spool/{mail,lpd},tmp,db,cache,opt,games,yp}
 
 #do not create the symlink atm.
@@ -47,6 +47,11 @@ ln -snf usr/lib lib
 ln -snf usr/%{_lib} %{_lib}
 ln -snf ../run var/run
 ln -snf ../run/lock var/lock
+ln -snf usr/bin usr/lib/debug/bin
+ln -snf usr/lib usr/lib/debug/lib
+ln -snf usr/%{_lib} usr/lib/debug/%{_lib}
+ln -snf ../.dwz usr/lib/debug/usr/.dwz
+ln -snf usr/sbin usr/lib/debug/sbin
 
 sed -n -f %{buildroot}/iso_639.sed /usr/share/xml/iso-codes/iso_639.xml \
   >%{buildroot}/iso_639.tab
@@ -134,6 +139,17 @@ posix.symlink("../run", "/var/run")
 posix.symlink("../run/lock", "/var/lock")
 return 0
 
+%posttrans
+#/bin/sh dependency should not be problem for posttrans
+#we need to restorecon on some dirs created in %pretrans or by other packages
+restorecon /var/run 2>/dev/null >/dev/null || :
+restorecon /var/lock 2>/dev/null >/dev/null || :
+restorecon -r /usr/lib/debug/ 2>/dev/null >/dev/null || :
+restorecon /sys 2>/dev/null >/dev/null || :
+restorecon /boot 2>dev/null >/dev/null || :
+restorecon /proc 2>dev/null >/dev/null || :
+restorecon /dev 2>dev/null >/dev/null || :
+
 %files -f filelist
 %defattr(0755,root,root,-)
 %dir %attr(555,root,root) /
@@ -163,7 +179,7 @@ return 0
 /run
 /sbin
 /srv
-/sys
+%attr(555,root,root) /sys
 %attr(1777,root,root) /tmp
 %dir /usr
 %attr(555,root,root) /usr/bin
@@ -171,7 +187,13 @@ return 0
 /usr/games
 /usr/include
 %dir %attr(555,root,root) /usr/lib
-/usr/lib/debug
+%dir /usr/lib/debug
+%ghost /usr/lib/debug/bin
+%ghost /usr/lib/debug/lib
+%ghost /usr/lib/debug/%{_lib}
+%ghost /usr/lib/debug/usr
+%ghost /usr/lib/debug/usr/.dwz
+%ghost /usr/lib/debug/sbin
 %attr(555,root,root) /usr/lib/games
 %attr(555,root,root) /usr/lib/sse2
 %ifarch x86_64 ppc64 sparc64 s390x aarch64
@@ -234,6 +256,22 @@ return 0
 /var/yp
 
 %changelog
+* Thu Mar 13 2014 Ondrej Vasik <ovasik@redhat.com> - 3.2-18
+- /var/run has incorrect selinux context after installation
+  to disk image (#1034922)
+
+* Fri Mar 07 2014 Ondrej Vasik <ovasik@redhat.com> - 3.2-17
+- /sys should have 555 permissions since kernel 3.4 (#1066591)
+
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.2-16
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 3.2-15
+- Mass rebuild 2013-12-27
+
+* Mon Nov 18 2013 Ondrej Vasik <ovasik@redhat.com> - 3.2-14
+- add ownership for the /usr/lib/debug subdirs(#1031550)
+
 * Mon Jul 08 2013 Ondrej Vasik <ovasik@redhat.com> - 3.2-13
 - .dwz symlink is needed as well (#974130)
 
