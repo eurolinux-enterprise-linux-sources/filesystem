@@ -1,7 +1,7 @@
 Summary: The basic directory layout for a Linux system
 Name: filesystem
 Version: 3.2
-Release: 18%{?dist}
+Release: 20%{?dist}
 License: Public Domain
 URL: https://fedorahosted.org/filesystem
 Group: System Environment/Base
@@ -124,6 +124,10 @@ posix.mkdir("/usr/sbin")
 posix.mkdir("/usr/lib")
 posix.mkdir("/usr/lib/debug")
 posix.mkdir("/usr/lib/debug/usr")
+posix.mkdir("/usr/lib/debug/usr/bin")
+posix.mkdir("/usr/lib/debug/usr/sbin")
+posix.mkdir("/usr/lib/debug/usr/lib")
+posix.mkdir("/usr/lib/debug/usr/%{_lib}")
 posix.mkdir("/usr/%{_lib}")
 posix.symlink("usr/bin", "/bin")
 posix.symlink("usr/sbin", "/sbin")
@@ -146,9 +150,9 @@ restorecon /var/run 2>/dev/null >/dev/null || :
 restorecon /var/lock 2>/dev/null >/dev/null || :
 restorecon -r /usr/lib/debug/ 2>/dev/null >/dev/null || :
 restorecon /sys 2>/dev/null >/dev/null || :
-restorecon /boot 2>dev/null >/dev/null || :
-restorecon /proc 2>dev/null >/dev/null || :
-restorecon /dev 2>dev/null >/dev/null || :
+restorecon /boot 2>/dev/null >/dev/null || :
+restorecon /proc 2>/dev/null >/dev/null || :
+restorecon /dev 2>/dev/null >/dev/null || :
 
 %files -f filelist
 %defattr(0755,root,root,-)
@@ -168,7 +172,7 @@ restorecon /dev 2>dev/null >/dev/null || :
 /etc/bash_completion.d/
 /home
 /lib
-%ifarch x86_64 ppc64 sparc64 s390x aarch64
+%ifarch x86_64 ppc64 sparc64 s390x aarch64 ppc64le
 /%{_lib}
 %endif
 /media
@@ -192,11 +196,15 @@ restorecon /dev 2>dev/null >/dev/null || :
 %ghost /usr/lib/debug/lib
 %ghost /usr/lib/debug/%{_lib}
 %ghost /usr/lib/debug/usr
+%ghost /usr/lib/debug/usr/bin
+%ghost /usr/lib/debug/usr/sbin
+%ghost /usr/lib/debug/usr/lib
+%ghost /usr/lib/debug/usr/%{_lib}
 %ghost /usr/lib/debug/usr/.dwz
 %ghost /usr/lib/debug/sbin
 %attr(555,root,root) /usr/lib/games
 %attr(555,root,root) /usr/lib/sse2
-%ifarch x86_64 ppc64 sparc64 s390x aarch64
+%ifarch x86_64 ppc64 sparc64 s390x aarch64 ppc64le
 %attr(555,root,root) /usr/%{_lib}
 %else
 %attr(555,root,root) /usr/lib/tls
@@ -256,6 +264,19 @@ restorecon /dev 2>dev/null >/dev/null || :
 /var/yp
 
 %changelog
+* Wed Aug 12 2015 Scientific Linux Auto Patch Process <SCIENTIFIC-LINUX-DEVEL@LISTSERV.FNAL.GOV>
+- Eliminated rpmbuild "bogus date" error due to inconsistent weekday,
+  by assuming the date is correct and changing the weekday.
+  Mon Aug 28 1999 --> Mon Aug 23 1999 or Sat Aug 28 1999 or Mon Aug 30 1999 or ....
+  Sun Jun 19 2000 --> Sun Jun 18 2000 or Mon Jun 19 2000 or Sun Jun 25 2000 or ....
+  Fri Sep 25 2010 --> Fri Sep 24 2010 or Sat Sep 25 2010 or Fri Oct 01 2010 or ....
+
+* Mon May 25 2015 Ondrej Vasik <ovasik@redhat.com> - 3.2-20
+- prevent potentially broken symlinks in debuginfo dirs (#1195641)
+
+* Fri Aug 08 2014 Ondrej Vasik <ovasik@redhat.com> - 3.2-19
+- fix build on ppc64le architecture (#1125503)
+
 * Thu Mar 13 2014 Ondrej Vasik <ovasik@redhat.com> - 3.2-18
 - /var/run has incorrect selinux context after installation
   to disk image (#1034922)
@@ -374,7 +395,8 @@ restorecon /dev 2>dev/null >/dev/null || :
   in Fedora 11.
 - Remove explicit BuildRoot.
 
-* Fri Sep 25 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.36-1
+* Sat Sep 25 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.36-1
+  Fri Sep 25 2010 --> Fri Sep 24 2010 or Sat Sep 25 2010 or Fri Oct 01 2010 or ....
 - own /usr/lib/sse2 even on 64-bit (#636748)
 
 * Mon Apr 19 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.35-1
@@ -665,7 +687,8 @@ restorecon /dev 2>dev/null >/dev/null || :
 * Thu Jun 22 2000 Preston Brown <pbrown@redhat.com>
 - remove /usr/info
 
-* Sun Jun 19 2000 Bill Nottingham <notting@redhat.com>
+* Mon Jun 19 2000 Bill Nottingham <notting@redhat.com>
+  Sun Jun 19 2000 --> Sun Jun 18 2000 or Mon Jun 19 2000 or Sun Jun 25 2000 or ....
 - remove /usr/man
 
 * Sat Jun 17 2000 Bill Nottingham <notting@redhat.com>
@@ -688,7 +711,8 @@ restorecon /dev 2>dev/null >/dev/null || :
 * Thu Apr 13 2000 Jakub Jelinek <jakub@redhat.com>
 - removed /var/state, added /var/opt, /var/mail for FHS 2.1 compliance
 
-* Mon Aug 28 1999 Preston Brown <pbrown@redhat.com>
+* Sat Aug 28 1999 Preston Brown <pbrown@redhat.com>
+  Mon Aug 28 1999 --> Mon Aug 23 1999 or Sat Aug 28 1999 or Mon Aug 30 1999 or ....
 - added /opt, /var/state, /var/cache for FHS compliance (#3966)
 
 * Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
