@@ -1,7 +1,7 @@
 Summary: The basic directory layout for a Linux system
 Name: filesystem
 Version: 3.2
-Release: 20%{?dist}
+Release: 21%{?dist}
 License: Public Domain
 URL: https://fedorahosted.org/filesystem
 Group: System Environment/Base
@@ -34,7 +34,7 @@ cd %{buildroot}
 mkdir -p boot dev \
         etc/{X11/{applnk,fontpath.d},xdg/autostart,opt,pm/{config.d,power.d,sleep.d},xinetd.d,skel,sysconfig,pki,bash_completion.d} \
         home media mnt opt proc root run srv sys tmp \
-        usr/{bin,etc,games,include,%{_lib}/{games,sse2,tls,X11,pm-utils/{module.d,power.d,sleep.d}},lib/{debug/usr,games,locale,modules,sse2},libexec,local/{bin,etc,games,lib,%{_lib},sbin,src,share/{applications,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x},info},libexec,include,},sbin,share/{aclocal,applications,augeas/lenses,backgrounds,desktop-directories,dict,doc,empty,games,ghostscript/conf.d,gnome,icons,idl,info,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x,0p,1p,3p},mime-info,misc,omf,pixmaps,sounds,themes,xsessions,X11},src,src/kernels,src/debug} \
+        usr/{bin,etc,games,include,%{_lib}/{games,sse2,tls,X11,pm-utils/{module.d,power.d,sleep.d}},lib/{debug/usr,games,locale,modules,sse2},libexec,local/{bin,etc,games,lib,%{_lib},sbin,src,share/{applications,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x},info},libexec,include,},sbin,share/{aclocal,applications,augeas/lenses,backgrounds,desktop-directories,dict,doc,empty,games,ghostscript/conf.d,gnome,icons,idl,info,licenses,man/man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x,0p,1p,3p},mime-info,misc,omf,pixmaps,sounds,themes,xsessions,X11},src,src/kernels,src/debug} \
         var/{adm,empty,gopher,lib/{games,misc,rpm-state},local,log,nis,preserve,spool/{mail,lpd},tmp,db,cache,opt,games,yp}
 
 #do not create the symlink atm.
@@ -229,6 +229,7 @@ restorecon /dev 2>/dev/null >/dev/null || :
 /usr/share/icons
 /usr/share/idl
 /usr/share/info
+%dir /usr/share/licenses
 %dir /usr/share/locale
 %dir /usr/share/man
 /usr/share/mime-info
@@ -264,12 +265,8 @@ restorecon /dev 2>/dev/null >/dev/null || :
 /var/yp
 
 %changelog
-* Wed Aug 12 2015 Scientific Linux Auto Patch Process <SCIENTIFIC-LINUX-DEVEL@LISTSERV.FNAL.GOV>
-- Eliminated rpmbuild "bogus date" error due to inconsistent weekday,
-  by assuming the date is correct and changing the weekday.
-  Mon Aug 28 1999 --> Mon Aug 23 1999 or Sat Aug 28 1999 or Mon Aug 30 1999 or ....
-  Sun Jun 19 2000 --> Sun Jun 18 2000 or Mon Jun 19 2000 or Sun Jun 25 2000 or ....
-  Fri Sep 25 2010 --> Fri Sep 24 2010 or Sat Sep 25 2010 or Fri Oct 01 2010 or ....
+* Thu Mar 10 2016 Ondrej Vasik <ovasik@redhat.com> - 3.2-21
+- add ownership for /usr/share/licenses (#1278300)
 
 * Mon May 25 2015 Ondrej Vasik <ovasik@redhat.com> - 3.2-20
 - prevent potentially broken symlinks in debuginfo dirs (#1195641)
@@ -395,8 +392,7 @@ restorecon /dev 2>/dev/null >/dev/null || :
   in Fedora 11.
 - Remove explicit BuildRoot.
 
-* Sat Sep 25 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.36-1
-  Fri Sep 25 2010 --> Fri Sep 24 2010 or Sat Sep 25 2010 or Fri Oct 01 2010 or ....
+* Fri Sep 25 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.36-1
 - own /usr/lib/sse2 even on 64-bit (#636748)
 
 * Mon Apr 19 2010 Ondrej Vasik <ovasik@redhat.com>  2.4.35-1
@@ -687,8 +683,7 @@ restorecon /dev 2>/dev/null >/dev/null || :
 * Thu Jun 22 2000 Preston Brown <pbrown@redhat.com>
 - remove /usr/info
 
-* Mon Jun 19 2000 Bill Nottingham <notting@redhat.com>
-  Sun Jun 19 2000 --> Sun Jun 18 2000 or Mon Jun 19 2000 or Sun Jun 25 2000 or ....
+* Sun Jun 19 2000 Bill Nottingham <notting@redhat.com>
 - remove /usr/man
 
 * Sat Jun 17 2000 Bill Nottingham <notting@redhat.com>
@@ -711,8 +706,7 @@ restorecon /dev 2>/dev/null >/dev/null || :
 * Thu Apr 13 2000 Jakub Jelinek <jakub@redhat.com>
 - removed /var/state, added /var/opt, /var/mail for FHS 2.1 compliance
 
-* Sat Aug 28 1999 Preston Brown <pbrown@redhat.com>
-  Mon Aug 28 1999 --> Mon Aug 23 1999 or Sat Aug 28 1999 or Mon Aug 30 1999 or ....
+* Mon Aug 28 1999 Preston Brown <pbrown@redhat.com>
 - added /opt, /var/state, /var/cache for FHS compliance (#3966)
 
 * Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
