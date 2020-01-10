@@ -1,12 +1,11 @@
 Summary: The basic directory layout for a Linux system
 Name: filesystem
 Version: 3.2
-Release: 21%{?dist}
+Release: 25%{?dist}
 License: Public Domain
-URL: https://fedorahosted.org/filesystem
+URL: https://pagure.io/filesystem
 Group: System Environment/Base
-# Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
-Source1: https://fedorahosted.org/filesystem/browser/lang-exceptions
+Source1: https://pagure.io/filesystem/raw/master/f/lang-exceptions
 Source2: iso_639.sed
 Source3: iso_3166.sed
 BuildRequires: iso-codes
@@ -17,6 +16,15 @@ The filesystem package is one of the basic packages that is installed
 on a Linux system. Filesystem contains the basic directory layout
 for a Linux operating system, including the correct permissions for
 the directories.
+
+%package content
+Summary: Directory ownership content of the filesystem package
+License: Public Domain
+
+%description content
+This subpackage of filesystem package contains just the file with
+the directories owned by the filesystem package. This can be used
+during the build process instead of calling rpm -ql filesystem.
 
 %prep
 rm -f $RPM_BUILD_DIR/filelist
@@ -108,6 +116,11 @@ for i in man{1,2,3,4,5,6,7,8,9,n,1x,2x,3x,4x,5x,6x,7x,8x,9x,0p,1p,3p}; do
    echo "/usr/share/man/$i" >>$RPM_BUILD_DIR/filelist
 done
 
+mkdir -p %{buildroot}/usr/share/filesystem
+#find all dirs in the buildroot owned by filesystem and store them
+find %{buildroot} -mindepth 0 | sed -e 's|^%{buildroot}|/|' -e 's|//|/|' \
+ | LC_ALL=C sort >%{buildroot}%{_datadir}/filesystem/paths
+
 %clean
 rm -rf %{buildroot}
 
@@ -154,8 +167,12 @@ restorecon /boot 2>/dev/null >/dev/null || :
 restorecon /proc 2>/dev/null >/dev/null || :
 restorecon /dev 2>/dev/null >/dev/null || :
 
+%files content
+%dir %{_datadir}/filesystem
+%{_datadir}/filesystem/paths
+
 %files -f filelist
-%defattr(0755,root,root,-)
+%defattr(0755,root,root,0755)
 %dir %attr(555,root,root) /
 /bin
 %attr(555,root,root) /boot
@@ -191,6 +208,8 @@ restorecon /dev 2>/dev/null >/dev/null || :
 /usr/games
 /usr/include
 %dir %attr(555,root,root) /usr/lib
+%dir /usr/lib/locale
+%dir /usr/lib/modules
 %dir /usr/lib/debug
 %ghost /usr/lib/debug/bin
 %ghost /usr/lib/debug/lib
@@ -265,6 +284,17 @@ restorecon /dev 2>/dev/null >/dev/null || :
 /var/yp
 
 %changelog
+* Thu Dec 14 2017 Ondrej Vasik <ovasik@redhat.com> - 3.2-25
+- own /usr/share/locale and /usr/lib/modules
+- improve filesystem content file to include symlinks and rootdir
+
+* Wed Nov 22 2017 Ondrej Vasik <ovasik@redhat.com> - 3.2-24
+- fix the upstream URL to new location (#1501735)
+
+* Thu Oct 12 2017 Ondrej Vasik <ovasik@redhat.com> - 3.2-23
+- create and own file with the content of filesystem package
+  (#1196724)
+
 * Thu Mar 10 2016 Ondrej Vasik <ovasik@redhat.com> - 3.2-21
 - add ownership for /usr/share/licenses (#1278300)
 
